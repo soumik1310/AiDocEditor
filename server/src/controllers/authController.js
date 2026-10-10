@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
 
 // small helper so we can throw errors with a status code
 const httpError = (status, message) =>
@@ -30,12 +31,15 @@ export const register = async (req, res) => {
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) throw httpError(409, "Email is already registered");
 
-  const user = await User.create({ name, email, password });
+  //we hash the password before it goes to the db
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await User.create({ name, email, password: hashedPassword });
 
   res.status(201).json({
     accessToken: signAccessToken(user._id),
     user: publicUser(user),
   });
+  
 };
 
 // POST /api/auth/login
