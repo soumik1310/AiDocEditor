@@ -11,9 +11,9 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    // select: false -> password is NOT returned by queries unless asked for
-    // this field stores the HASH, never the plain password
-    password: { type: String, required: true, select: false },
+    // stores the bcrypt HASH, never the plain password
+    // loaded in every query, so never send a user document straight to res.json
+    password: { type: String, required: true },
   },
   { timestamps: true }
 );

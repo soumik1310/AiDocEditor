@@ -11,6 +11,7 @@ const signAccessToken = (userId) =>
     expiresIn: process.env.JWT_ACCESS_EXPIRES || "15m",
   });
 
+// only these fields are allowed to leave the server
 const publicUser = (user) => ({
   id: user._id,
   name: user.name,
@@ -31,7 +32,7 @@ export const register = async (req, res) => {
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) throw httpError(409, "Email is already registered");
 
-  //we hash the password before it goes to the db
+  // we hash the password before it goes to the db
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await User.create({ name, email, password: hashedPassword });
 
@@ -39,7 +40,6 @@ export const register = async (req, res) => {
     accessToken: signAccessToken(user._id),
     user: publicUser(user),
   });
-  
 };
 
 // POST /api/auth/login
@@ -50,10 +50,7 @@ export const login = async (req, res) => {
     throw httpError(400, "Email and password are required");
   }
 
-  // password has select:false, so we ask for it explicitly here
-  const user = await User.findOne({ email: email.toLowerCase() }).select(
-    "+password"
-  );
+  const user = await User.findOne({ email: email.toLowerCase() });
 
   // same message for "no user" and "wrong password" on purpose
   if (!user || !(await user.comparePassword(password))) {
