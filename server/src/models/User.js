@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema(
     // stores the bcrypt HASH, never the plain password
     // loaded in every query, so never send a user document straight to res.json
     password: { type: String, required: true },
+    // sha256 hash of the user's CURRENT refresh token (null = logged out)
+    refreshTokenHash: { type: String, default: null },
   },
   { timestamps: true }
 );
