@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import publicRoutes from "./routes/publicRoutes.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import docRoutes from "./routes/docRoutes.js";
@@ -14,6 +15,7 @@ app.use(cookieParser());
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/docs", docRoutes);
+app.use("/api/public", publicRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

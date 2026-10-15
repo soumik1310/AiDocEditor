@@ -5,6 +5,7 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
+  toggleShare,
 } from "../controllers/docController.js";
 import protect from "../middleware/auth.js";
 
@@ -17,5 +18,6 @@ router.get("/", listDocs);
 router.get("/:id", getDoc);
 router.put("/:id", updateDoc);
 router.delete("/:id", deleteDoc);
+router.patch("/:id/share", toggleShare);
 
 export default router;
