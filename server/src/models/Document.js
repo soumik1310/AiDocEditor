@@ -7,7 +7,12 @@ const documentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    title: { type: String, trim: true, maxlength: 200, default: "Untitled" },
+    title: { 
+        type: String, 
+        trim: true, 
+        maxlength: 200, 
+        default: "Untitled" 
+    },
     // TipTap's JSON output is stored as-is, so Mixed (any shape) is used
     content: {
       type: mongoose.Schema.Types.Mixed,
