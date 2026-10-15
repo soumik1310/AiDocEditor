@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Document from "../models/Document.js";
 
 const httpError = (status, message) =>
@@ -11,7 +10,7 @@ export const createDoc = async (req, res) => {
   const doc = await Document.create({
     owner: req.user._id,
     title: title?.trim() || "Untitled",
-    ...(content && { content }), // only set if the client sent it
+    ...(content && { content }),
   });
 
   res.status(201).json({ doc });
@@ -26,31 +25,51 @@ export const listDocs = async (req, res) => {
 
   const [docs, total] = await Promise.all([
     Document.find(filter)
-      .select("title createdAt updatedAt") // the list doesn't need the content
+      .select("title createdAt updatedAt")
       .sort({ updatedAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit),
     Document.countDocuments(filter),
   ]);
 
-  res.json({
-    docs,
-    page,
-    limit,
-    total,
-    totalPages: Math.ceil(total / limit),
-  });
+  res.json({ docs, page, limit, total, totalPages: Math.ceil(total / limit) });
 };
 
 // GET /api/docs/:id
 export const getDoc = async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.isValidObjectId(id)) throw httpError(404, "Document not found");
-
-  // filtering by owner here means other people's docs look like "not found"
-  const doc = await Document.findOne({ _id: id, owner: req.user._id });
+  const doc = await Document.findOne({
+    _id: req.params.id,
+    owner: req.user._id,
+  });
   if (!doc) throw httpError(404, "Document not found");
 
   res.json({ doc });
+};
+
+// PUT /api/docs/:id
+export const updateDoc = async (req, res) => {
+  const { title, content } = req.body;
+
+  const doc = await Document.findOne({
+    _id: req.params.id,
+    owner: req.user._id,
+  });
+  if (!doc) throw httpError(404, "Document not found");
+
+  if (title !== undefined) doc.title = title;
+  if (content !== undefined) doc.content = content;
+
+  await doc.save();
+  res.json({ doc });
+};
+
+// DELETE /api/docs/:id
+export const deleteDoc = async (req, res) => {
+  const doc = await Document.findOneAndDelete({
+    _id: req.params.id,
+    owner: req.user._id,
+  });
+  if (!doc) throw httpError(404, "Document not found");
+
+  res.json({ message: "Document deleted" });
 };
